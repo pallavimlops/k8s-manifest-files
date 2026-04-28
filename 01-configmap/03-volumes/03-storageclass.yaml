@@ -1,0 +1,7 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: demo-storage-class
+provisioner: k8s.io/minikube-hostpath   # minikube provisioner # In EKS  → uses EBS provisioner
+reclaimPolicy: Delete                    # delete PV when PVC deleted
+volumeBindingMode: Immediate

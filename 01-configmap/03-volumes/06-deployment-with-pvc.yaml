@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telecom-app
+spec:
+  replicas: 1                     # only 1 replica for PVC demo (RWO)
+  selector:
+    matchLabels:
+      app: telecom-app
+  template:
+    metadata:
+      labels:
+        app: telecom-app
+    spec:
+      containers:
+      - name: telecom-app
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secret
+        volumeMounts:
+        - name: app-storage
+          mountPath: /app/data    # data stored here inside container
+
+      volumes:
+      - name: app-storage
+        persistentVolumeClaim:
+          claimName: demo-pvc     # attach PVC to Pod
