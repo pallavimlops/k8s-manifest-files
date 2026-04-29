@@ -1,0 +1,25 @@
+## Execution Steps
+
+# Create a manifest yaml and save it
+vi deployment-pdb.yaml
+
+kubectl apply -f deployment-pdb.yaml
+
+# Check PDB
+kubectl get pdb
+kubectl describe pdb telecom-app-pdb
+
+# Watch rolling update with MaxSurge and MaxUnavailable
+kubectl set image deployment/telecom-app telecom-app=nginx:1.25
+kubectl rollout status deployment/telecom-app
+
+# Watch Pods during update
+kubectl get pods --watch
+# Max 4 Pods at any time (3 + maxSurge 1)
+# Min 2 Pods always running (3 - maxUnavailable 1)
+
+# Rollback if needed
+kubectl rollout undo deployment/telecom-app
+
+# Check rollout history
+kubectl rollout history deployment/telecom-app

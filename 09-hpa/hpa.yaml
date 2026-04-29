@@ -2,7 +2,7 @@
 # Automatically scales Pods based on CPU usage
 # Need metrics-server for HPA to work
 
-# Step 1 — Enable metrics-server in Minikube
+# Step 1 — Enable metrics-server in Minikube (if only if you use minikube otherwise not required)
 # Run this command first: minikube addons enable metrics-server
 
 # Deployment to scale
