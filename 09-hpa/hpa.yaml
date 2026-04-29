@@ -1,0 +1,54 @@
+# Demo — HPA (Horizontal Pod Autoscaler)
+# Automatically scales Pods based on CPU usage
+# Need metrics-server for HPA to work
+
+# Step 1 — Enable metrics-server in Minikube
+# Run this command first: minikube addons enable metrics-server
+
+# Deployment to scale
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telecom-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: telecom-app
+  template:
+    metadata:
+      labels:
+        app: telecom-app
+    spec:
+      containers:
+      - name: telecom-app
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"       # request 100 millicores
+            memory: "128Mi"
+          limits:
+            cpu: "500m"       # limit 500 millicores
+            memory: "256Mi"
+---
+# HPA — scales Pods when CPU > 50%
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: telecom-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: telecom-app
+  minReplicas: 1            # minimum 1 Pod always
+  maxReplicas: 5            # maximum 5 Pods
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50  # scale up if CPU > 50%

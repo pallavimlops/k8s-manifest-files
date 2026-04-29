@@ -1,0 +1,38 @@
+# Log collector running on every node
+# Collects logs from node and writes to shared location
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: log-collector
+  labels:
+    app: log-collector
+spec:
+  selector:
+    matchLabels:
+      app: log-collector
+  template:
+    metadata:
+      labels:
+        app: log-collector
+    spec:
+      containers:
+      - name: log-collector
+        image: busybox
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          while true; do
+            echo "Collecting logs from node at $(date)" >> /node-logs/collected.log
+            echo "Node hostname: $(hostname)" >> /node-logs/collected.log
+            sleep 10
+          done
+        volumeMounts:
+        - name: node-logs
+          mountPath: /node-logs       # inside container
+
+      volumes:
+      - name: node-logs
+        hostPath:
+          path: /tmp/collected-logs   # on the actual node
+          type: DirectoryOrCreate

@@ -1,0 +1,43 @@
+# Demo 1 — Deployment with MaxSurge and MaxUnavailable
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telecom-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: telecom-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1           # max 4 Pods during update (3+1)
+      maxUnavailable: 1     # min 2 Pods always running (3-1)
+  template:
+    metadata:
+      labels:
+        app: telecom-app
+    spec:
+      containers:
+      - name: telecom-app
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secret
+---
+# Demo 2 — Pod Disruption Budget
+# Guarantees minimum Pods always running
+# Protects app during node upgrades and maintenance
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: telecom-app-pdb
+spec:
+  minAvailable: 2           # at least 2 Pods always running
+  selector:
+    matchLabels:
+      app: telecom-app
